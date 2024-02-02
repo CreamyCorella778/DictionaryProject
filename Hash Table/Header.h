@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <numeric>
 #include <vector>
+#include <list>
 #include <string>
 
 using namespace std;
@@ -19,7 +20,8 @@ struct Word
 
 struct HashTable
 {
-    vector <vector <Word>> table;
-    int max_size;
+    vector <vector <list <Word>>> table;
+    int numberOfElements;
+    vector<int> sizeEachRow;
 };
 
