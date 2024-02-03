@@ -13,8 +13,7 @@ using namespace std;
 struct Word
 {
     string word;
-    string type;
-    string origin;
+    vector<string> type;
     vector<string> meaning;
 };
 
@@ -24,4 +23,6 @@ struct HashTable
     int numberOfElements;
     vector<int> sizeEachRow;
 };
+
+//---------------------------------------------------------
 

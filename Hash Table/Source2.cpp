@@ -1,16 +1,15 @@
 #include "Header.h"
 
-void initWord(Word& w, string word = "", string type = "", vector<string> meaning = {""}, string origin = "")
+void initWord(Word& w, string word = "", string type = "", vector<string> meaning = {""})
 {
     w.word = word;
-    w.type = type;
+    w.type.push_back(type);
     w.meaning = meaning;
-    w.origin = origin;
 }
 
 bool isInitialized(Word w)
 {
-    return !(w.word.empty() && w.type.empty() &&  (w.meaning.size() == 0 || w.meaning[0].empty()) && w.origin.empty());
+    return !(w.word.empty() && w.type.empty() &&  (w.meaning.size() == 0 || w.meaning[0].empty()));
 }
 
 void initHashTable(HashTable& ht, int n)
@@ -48,8 +47,8 @@ int hashString(string str) {
 int encodeWord(Word w)
 {
     int val = hashString(w.word);
-    val += hashString(w.type);
-    val += hashString(w.origin);
+    for (int i = 0; i < w.type.size(); ++i)
+        val += hashString(w.type[i]);
     for (int i = 0; i < w.meaning.size(); ++i)
         val += hashString(w.meaning[i]);
     return val;

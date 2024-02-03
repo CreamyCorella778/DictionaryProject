@@ -1,0 +1,17 @@
+Vấn đề khi đọc tệp
+- 1 từ vựng có nhiều từ (chứa dấu cách) => Từ vựng với từ loại cách nhau bằng 2 dấu cách
+- 1 từ vựng có nhiều từ loại, mỗi từ loại có nhiều nghĩa => mỗi nhóm nghĩa của một từ loại cách nhau bằng phần tử rỗng ""
+- 1 từ vựng suy ra nhiều từ vựng khác, từ vựng suy ra có thể có nhiều từ, chỉ cách với từ loại bằng 1 dấu cách và không có nghĩa, buộc phải suy ra nghĩa từ từ vựng gốc (vd: Accelerate => Acceleration) => Thường thì những từ này sẽ đứng sau ký hiệu DEL
+- 1 khu vực từ loại có chứa nhièu từ loại (n. & v.) (adj. & adv.)
+- 2 dấu cách sau từ vựng không phải là từ loại mà là một từ thể hiện lĩnh vực đặc biệt, từ lóng,... (mus., slang, attrib., past part., (brit. Woollen), colloq., 
+- Giải quyết các ký tự lỗi:  , DEL (ASCII 127 = CHAR_MAX) => cứ đọc như bình thường
+- Chú thích cho từ ở phía trên có dạng tương tự như từ phía trên gây hiểu lầm => Kiểm tra trường type được đọc có phải là n. không
+- Rất nhiều dấu xuống dòng và một ký tự lớn ở giữa thể hiện đã đến các từ của Z, R, T,...
+
+
+Z
+
+
+- Những từ là biến thể của từ khác (past part., pl. Of *..., var. Of *..., ) mà không có từ loại
+- Từ có số thể hiện các nghĩa hoàn toàn khác (Well1, Well2,...) nhưng cũng có biến thể (Well-advised,...) gây khó khăn khi tra từ
+- 
