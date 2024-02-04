@@ -1,6 +1,6 @@
 #include "Header.h"
 
-void initWord(Word& w, string word = "", string type = "", vector<string> meaning = {""})
+void initWord(Word& w, string word = "", string type = "", vector<string> meaning = {})
 {
     w.word = word;
     w.type.push_back(type);
