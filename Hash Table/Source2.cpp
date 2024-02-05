@@ -47,10 +47,6 @@ int hashString(string str) {
 int encodeWord(Word w)
 {
     int val = hashString(w.word);
-    for (int i = 0; i < w.type.size(); ++i)
-        val += hashString(w.type[i]);
-    for (int i = 0; i < w.meaning.size(); ++i)
-        val += hashString(w.meaning[i]);
     return val;
 }
 
@@ -77,25 +73,25 @@ void putToTable(vector<Word> arr, HashTable& ht)
     ht.numberOfElements = arr.size();
 }
 
-bool lookUpTable(HashTable ht, Word w, list<Word>::iterator& it)
+bool lookUpTable(HashTable ht, Word w, vector<list<Word>::iterator>& iters)
 {
     int hashVal1 = hashFunction1(encodeWord(w), ht.table.size());
     int hashVal2 = hashFunction2(hashVal1, pow(ht.sizeEachRow[hashVal1], 2), 2);
     list <Word> l = ht.table[hashVal1][hashVal2];
     if (l.empty())
     {
-        it = l.end();
-        return true;
+        iters.push_back(l.end());
+        return false;
     }
     else 
     {
         for (list<Word>::iterator iter = l.begin(); iter != l.end(); ++iter)
-            if (iter->word.compare(w.word))
-            {
-                it = iter;
-                return true;
-            }
-        it = l.end();
+        {
+            if (iter->word.compare(w.word) || iter->word.find(w.word))
+                iters.push_back(iter);
+            return true;
+        }
+        iters.push_back(l.end());
         return false;
     }
 }
@@ -110,15 +106,18 @@ void insertAnElement(HashTable& ht, Word w)
 
 void deleteAnElement(HashTable& ht, Word w)
 {
-    list<Word>::iterator iter;
-    bool isExist = lookUpTable(ht, w, iter);
+    vector<list<Word>::iterator> iters;
+    bool isExist = lookUpTable(ht, w, iters);
     if (!isExist)
         return;
     else    
     {
         int hashVal1 = hashFunction1(encodeWord(w), ht.table.size());
         int hashVal2 = hashFunction2(hashVal1, pow(ht.sizeEachRow[hashVal1], 2), 2);
-        ht.table[hashVal1][hashVal2].erase(iter);
-        ht.numberOfElements -= 1;
+        for (list<Word>::iterator it : iters)
+        {
+            ht.table[hashVal1][hashVal2].erase(it);
+            ht.numberOfElements -= 1;
+        }
     }
 }

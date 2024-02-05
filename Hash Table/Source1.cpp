@@ -12,7 +12,7 @@ bool isWordType(string str)
 {
     vector<string> types = {"n", "n.pl", "v", "adj", "Adj", "adv", "Adv", "abbr", "Abbr", "prep", "comb", "contr", "int", "symb", "pron"};
     for (string i : types)
-        if (str.find(i))
+        if (str.find(i) && str.size() - i.size() == 1)
             return true;
     return false;
 }
@@ -69,7 +69,7 @@ vector<string> splitIntoMeanings(string tempMeaning, vector<string>& extraTypes)
             {
                 extraTypes.push_back(container);
                 i += 2;
-                result.push_back("");
+                result.push_back("->");
                 vector<string> result1 = splitIntoMeanings(tempMeaning.substr(i,  tempMeaning.length() - i), extraTypes);
                 result.insert(result.end(), result1.begin(), result1.end());
             } 
@@ -132,21 +132,39 @@ bool readDatabase(string fname, vector<Word>& data)
     {
         if (!size(currentLine) || !isContainingAlphaNum(currentLine) || !currentLine.compare(lineBefore) || size(currentLine) == 1)
             continue;
-        // else:
-        int pos1 = currentLine.find("  "), pos2 = currentLine.find_first_of(" ",  pos1 + 2);
-        temp.word = currentLine.substr(0, pos1);
+        // else, process the line read:
+        int pos0 = 0; // the beginning of a line
+
+        // the word/vocabulary
+        int pos1 = currentLine.find("  ");
+        temp.word = currentLine.substr(pos0, pos1);
+        temp.word = eliminateEndingNumberFromWord(temp.word);
+
+        // the word type
+        int pos2 = currentLine.find_first_of(" ",  pos1 + 2);
         temp.type.push_back(currentLine.substr(pos1 + 2, pos2 - pos1 - 1));
-        size_t pos3 = currentLine.find("[", pos2 + 1);
-        if (pos3 == string::npos)
+        if (!isWordType(temp.type[0]))
         {
-            pos3 = currentLine.size();
-            tempMeaning = currentLine.substr(pos2 + 1, pos3 - pos2 - 1);
-        }
-        else
-        {
-
+            int pos2_5 = currentLine.find_first_of(" ",  pos2 + 1);
+            temp.type[0] += currentLine.substr(pos2, pos2_5 - pos2 - 1);
+            pos2 = pos2_5;
         }
 
+        // the meaning of the word/vocabulary
+        temp.meaning = splitIntoMeanings(currentLine.substr(pos2), temp.type);
+
+        // finish the data processing
+        data.push_back(temp);
         lineBefore = currentLine;
     }
+}
+
+vector<Word> convertHashIntoArr(HashTable ht)
+{
+    
+}
+
+bool writeDatabase(string fname, vector<Word> data)
+{
+
 }
