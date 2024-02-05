@@ -8,51 +8,112 @@ bool isContainingAlphaNum(string str)
     return false;
 }
 
-vector<string> splitIntoMeanings(string tempMeaning) 
+bool isWordType(string str)
+{
+    vector<string> types = {"n", "n.pl", "v", "adj", "Adj", "adv", "Adv", "abbr", "Abbr", "prep", "comb", "contr", "int", "symb", "pron"};
+    for (string i : types)
+        if (str.find(i))
+            return true;
+    return false;
+}
+
+vector<string> splitIntoMeanings(string tempMeaning, vector<string>& extraTypes) 
 {
     vector<string> result;
+    if (tempMeaning.empty())
+        return result;
+    // else
     int i = 0;
     string container = "";
-    if (isdigit(tempMeaning[i]) && tempMeaning[i + 1] == ' ')
+    while (i < tempMeaning.size() && tempMeaning[i] != 127)
     {
-        while (i < tempMeaning.size() && tempMeaning[i] != 127)
-        {
-            if (isdigit(tempMeaning[i]) && tempMeaning[i + 1] == ' ')
-                //while (!(isdigit(tempMeaning[i]) && tempMeaning[i + 1] == ' ') || !(tempMeaning[i] == 127))
-                while (tempMeaning[i] != '.')
-                {
-                    container.push_back(tempMeaning[i]);
-                    i++;
-                }
-            else if ()
+        if (isdigit(tempMeaning[i]) && tempMeaning[i + 1] == ' ')
+        {   //while (!(isdigit(tempMeaning[i]) && tempMeaning[i + 1] == ' ') || !(tempMeaning[i] == 127))
+            while (tempMeaning[i] != '.' || tempMeaning[i + 1] != ' ')
+            {
+                container.push_back(tempMeaning[i]);
+                i++;
+            }
             result.push_back(container);
             container.clear();
-            ++i;
+            i += 2;
         }
-        if (i < tempMeaning.size() && tempMeaning[i] == 127)
+        else if (tempMeaning[i] == '(')
         {
-            while (i < tempMeaning.size())
-                container.push_back(tempMeaning[i++]);
+            while (tempMeaning[i] != ')')
+            {
+                container.push_back(tempMeaning[i]);
+                i++;
+            }
+            container.push_back(tempMeaning[i++]);
+            container.push_back(tempMeaning[i++]);
+        }
+        else if (tempMeaning[i] == '[')
+        {
+            while (tempMeaning[i] != ']')
+            {
+                container.push_back(tempMeaning[i]);
+                i++;
+            }
+            container.push_back(tempMeaning[i++]);
             result.push_back(container);
         }
-        return result;
-    }
-    else
-    {
-        while (i < tempMeaning.size() && tempMeaning[i] != 127)
+        else
         {
-            container.push_back(tempMeaning[i]);
-            i++;
-        }
-        if (i < tempMeaning.size() && tempMeaning[i] == 127)
-        {
+            while (!(tempMeaning[i] == '.' && tempMeaning[i + 1] == ' '))
+            {
+                container.push_back(tempMeaning[i]);
+                i++;
+            }
+            if (isWordType(container))
+            {
+                extraTypes.push_back(container);
+                i += 2;
+                result.push_back("");
+                vector<string> result1 = splitIntoMeanings(tempMeaning.substr(i,  tempMeaning.length() - i), extraTypes);
+                result.insert(result.end(), result1.begin(), result1.end());
+            } 
+            result.push_back(container);
             container.clear();
-            while (i < tempMeaning.size())
-                container.push_back(tempMeaning[i++]);
-            result.push_back(container);
+            i += 2;
         }
-        return result;
+        
     }
+    if (i < tempMeaning.size() && tempMeaning[i] == 127)
+    {
+        while (i < tempMeaning.size())
+            container.push_back(tempMeaning[i++]);
+        result.push_back(container);
+    }
+    return result;
+    // }
+    // else
+    // {
+    //     while (i < tempMeaning.size() && tempMeaning[i] != 127)
+    //     {
+    //         container.push_back(tempMeaning[i]);
+    //         i++;
+    //     }
+    //     if (i < tempMeaning.size() && tempMeaning[i] == 127)
+    //     {
+    //         container.clear();
+    //         while (i < tempMeaning.size())
+    //             container.push_back(tempMeaning[i++]);
+    //         result.push_back(container);
+    //     }
+    //     return result;
+    // }
+}
+
+string eliminateEndingNumberFromWord(string str)
+{
+    if (str.empty())
+        return str;
+    // else
+    string result = ""; result.assign(str);
+    for (int lastIndex = str.size() - 1; isdigit(result[lastIndex]); --lastIndex)
+        result.pop_back();
+    return result;
 }
 
 bool readDatabase(string fname, vector<Word>& data)
