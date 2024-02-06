@@ -159,12 +159,23 @@ bool readDatabase(string fname, vector<Word>& data)
     }
 }
 
-vector<Word> convertHashIntoArr(HashTable ht)
-{
-    
-}
-
 bool writeDatabase(string fname, vector<Word> data)
 {
-
+    ofstream fp;
+    fp.open(fname, ios::trunc);
+    if (!fp.is_open())
+        return false;
+    // else
+    for (Word i : data)
+    {
+        fp << i.word << "  ";
+        vector<string>::iterator it = i.meaning.begin();
+        for (string j : i.type)
+        {
+            fp << j << " ";
+            while (it != i.meaning.end() && *it != "")
+                fp << *it << " ";
+        }
+    }
+    return true;
 }
