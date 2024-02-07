@@ -179,3 +179,13 @@ bool writeDatabase(string fname, vector<Word> data)
     }
     return true;
 }
+
+void menu()
+{
+    int choice = 0;
+    do
+    {
+        /* code */
+    } while ();
+    
+}
