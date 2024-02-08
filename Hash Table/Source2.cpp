@@ -1,9 +1,10 @@
 #include "Header.h"
 
-void initWord(Word& w, string word = "", string type = "", vector<string> meaning = {})
+void initWord(Word& w, string word, string type, vector<string> meaning)
 {
     w.word = word;
-    w.type.push_back(type);
+    if (type != "")
+        w.type.push_back(type);
     w.meaning = meaning;
 }
 
@@ -406,4 +407,25 @@ void deleteAWord(HashTable& ht)
     --ht.numberOfElements;
     --ht.sizeEachRow[hashVal1];
     cout << "Da xoa thanh cong." << endl;
+}
+
+int outputToFile(HashTable ht)
+{
+    vector<Word> data = convertTableIntoArr(ht);
+    string fname; int count = 0; bool isWritten = false;
+    do
+    {
+        cout << "Nhap ten tep trong thu muc hien hanh cua chuong trinh hoac nhap duong dan tuyet doi den tep: ";
+        getline(cin, fname);
+        isWritten = writeDatabase(fname, data);
+        if (!isWritten) count++;
+    } while (!isWritten && count < 5);
+    if (count == 5)
+    {
+        cout << "Khong the mo tep! Chuc ban may man lan sau" << endl;
+        return -1;
+    }
+    // else   
+    cout << "Ghi du lieu ra tep thanh cong!" << endl;
+    return 0;
 }

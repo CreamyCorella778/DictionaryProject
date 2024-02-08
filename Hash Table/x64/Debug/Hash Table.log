@@ -1,0 +1,9 @@
+﻿  Source1.cpp
+C:\Users\user\source\repos\Dictionary\Hash Table\Source1.cpp(114,24): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source1.cpp(122,24): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source1.cpp(130,28): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source1.cpp(149,40): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source1.cpp(152,49): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source1.cpp(178,18): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source1.cpp(194): warning C4715: 'readDatabase': not all control paths return a value
+  Hash Table.vcxproj -> C:\Users\user\source\repos\Dictionary\x64\Debug\Hash Table.exe

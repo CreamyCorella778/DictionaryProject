@@ -38,5 +38,9 @@ void addAWord(HashTable& ht);
 void editAWord(HashTable& ht);
 void lookUpDictionary(HashTable ht);
 void deleteAWord(HashTable& ht);
+int outputToFile(HashTable ht);
 //---------------
-void menu();
+int menu1_InputFromFile(vector<Word>& data);
+int menu2_Processing(HashTable& ht);
+
+
