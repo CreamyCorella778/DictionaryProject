@@ -1,18 +1,75 @@
 #include "Header.h"
 
-bool isContainingAlphaNum(string str)
+bool isNumber(char i)
 {
-    for (int i = 0; i < size(str); ++i)
-        if (isalnum(str[i]))
-            return true;
-    return false;
+    return 48 <= i && i <= 57;
 }
+
+bool isContainingURC(string str)
+{
+    string URC = {-17, -65, -67};
+    return str.find(URC) < str.size();
+}
+
+void eraseURC(string& str)
+{
+    string URC = {-17, -65, -67};
+    if (isContainingURC(str))
+    {
+        int pos = str.find(URC);
+        str.erase(pos, URC.size());
+    }
+    return;
+}
+
+bool isOneURCApart(string a, string b) // URC = Unicode Replacement Character: ï¿½
+{
+    string URC = {-17, -65, -67};
+    if (abs(int(a.size() - b.size())) != URC.size())
+        return false;
+    string temp = a.size() >  b.size() ? a : b, smaller = a.size() <=  b.size() ? a : b;
+    temp.erase(temp.find(smaller), smaller.size()); 
+    if (temp == URC)
+        return true;
+    else
+        return false;
+}
+
+//bool isContaining(string str)
+//{
+//    string URC = { -17, -65, -67 };
+//    return str.find(URC) < str.size();
+//}
+//
+//void eraseURC(string& str)
+//{
+//    string URC = { -17, -65, -67 };
+//    if (isContainingURC(str))
+//    {
+//        int pos = str.find(URC);
+//        str.erase(pos, URC.size());
+//    }
+//    return;
+//}
+//
+//bool isOneURCApart(string a, string b) // URC = Unicode Replacement Character: ï¿½
+//{
+//    string URC = { -17, -65, -67 };
+//    if (abs(int(a.size() - b.size())) != URC.size())
+//        return false;
+//    string temp = a.size() > b.size() ? a : b, smaller = a.size() <= b.size() ? a : b;
+//    temp.erase(temp.find(smaller), smaller.size());
+//    if (temp == URC)
+//        return true;
+//    else
+//        return false;
+//}
 
 bool isWordType(string str)
 {
     vector<string> types = {"n.", "n.pl.", "v.", "adj.", "Adj.", "adv.", "Adv.", "abbr.", "Abbr.", "prep.", "comb.", "contr.", "int.", "symb.", "pron."};
     for (string i : types)
-        if (str.find(i) < str.size() && str.size() - i.size() <= 1)
+        if (str.find(i) < str.size() && (str == i || isOneURCApart(str, i)))
             return true;
     return false;
 }
@@ -27,55 +84,93 @@ vector<string> splitIntoMeanings(string tempMeaning, vector<string>& extraTypes)
     string container = "";
     while (i < tempMeaning.size() && tempMeaning[i] != 127)
     {
-        if (isdigit(tempMeaning[i]) && tempMeaning[i + 1] == ' ')
-        {   //while (!(isdigit(tempMeaning[i]) && tempMeaning[i + 1] == ' ') || !(tempMeaning[i] == 127))
-            while (tempMeaning[i] != '.' || tempMeaning[i + 1] != ' ')
+        if (isNumber(tempMeaning[i]) && tempMeaning[i + 1] == ' ')
+        {   
+            while (i + 1 < tempMeaning.size() && (tempMeaning[i] != '.' || tempMeaning[i + 1] != ' '))
             {
-                container.push_back(tempMeaning[i]);
-                i++;
+                if (tempMeaning[i] == '(')
+                    while (i < tempMeaning.size() && tempMeaning[i] != ')')
+                    {
+                        container.push_back(tempMeaning[i]);
+                        i++;
+                    }
+                if (i < tempMeaning.size())
+                {
+                    container.push_back(tempMeaning[i]);
+                    i++;
+                }
             }
+            container.push_back(tempMeaning[i]);
+            eraseURC(container);
             result.push_back(container);
             container.clear();
             i += 2;
         }
         else if (tempMeaning[i] == '(')
         {
-            while (tempMeaning[i] != ')')
+            while (i < tempMeaning.size() && tempMeaning[i] != ')')
             {
                 container.push_back(tempMeaning[i]);
                 i++;
             }
-            container.push_back(tempMeaning[i++]);
-            container.push_back(tempMeaning[i++]);
+            if (i < tempMeaning.size())
+            {
+                container.push_back(tempMeaning[i++]);
+                container.push_back(tempMeaning[i++]);
+            }
+            eraseURC(container);
         }
         else if (tempMeaning[i] == '[')
         {
-            while (tempMeaning[i] != ']')
+            while (i < tempMeaning.size() && tempMeaning[i] != ']')
             {
                 container.push_back(tempMeaning[i]);
                 i++;
             }
-            container.push_back(tempMeaning[i++]);
+            if (i < tempMeaning.size())
+                container.push_back(tempMeaning[i++]);
+            eraseURC(container);
             result.push_back(container);
         }
         else
         {
-            while (i < tempMeaning.size() && !(tempMeaning[i] == '.' && tempMeaning[i + 1] == ' '))
+            while (i + 1 < tempMeaning.size() && !(tempMeaning[i] == '.' && tempMeaning[i + 1] == ' '))
             {
-                container.push_back(tempMeaning[i]);
-                i++;
+                if (tempMeaning[i] == '(')
+                    while (i < tempMeaning.size() && tempMeaning[i] != ')')
+                    {
+                        container.push_back(tempMeaning[i]);
+                        i++;
+                    }
+                if (i < tempMeaning.size())
+                {
+                    container.push_back(tempMeaning[i]);
+                    i++;
+                }
             }
+            container.push_back(tempMeaning[i]);
             if (isWordType(container))
             {
+                eraseURC(container);
                 extraTypes.push_back(container);
                 i += 2;
                 result.push_back("");
-                vector<string> result1 = splitIntoMeanings(tempMeaning.substr(i, tempMeaning.length() - i), extraTypes);
-                result.insert(result.end(), result1.begin(), result1.end());
+                if (i < tempMeaning.size())
+                {
+                    string nextMeaningToSplit = tempMeaning.substr(i, tempMeaning.length() - i);
+                    vector<string> result1 = splitIntoMeanings(nextMeaningToSplit, extraTypes);
+                    result.insert(result.end(), result1.begin(), result1.end());
+                }
+                container.clear();
+                return result;
             } 
-            result.push_back(container);
-            container.clear();
-            i += 2;
+            else
+            {
+                eraseURC(container);
+                result.push_back(container);
+                container.clear();
+                i += 2;
+            }
         }
         
     }
@@ -83,26 +178,10 @@ vector<string> splitIntoMeanings(string tempMeaning, vector<string>& extraTypes)
     {
         while (i < tempMeaning.size())
             container.push_back(tempMeaning[i++]);
+        eraseURC(container);
         result.push_back(container);
     }
     return result;
-    // }
-    // else
-    // {
-    //     while (i < tempMeaning.size() && tempMeaning[i] != 127)
-    //     {
-    //         container.push_back(tempMeaning[i]);
-    //         i++;
-    //     }
-    //     if (i < tempMeaning.size() && tempMeaning[i] == 127)
-    //     {
-    //         container.clear();
-    //         while (i < tempMeaning.size())
-    //             container.push_back(tempMeaning[i++]);
-    //         result.push_back(container);
-    //     }
-    //     return result;
-    // }
 }
 
 string eliminateEndingNumberFromWord(string str)
@@ -111,7 +190,7 @@ string eliminateEndingNumberFromWord(string str)
         return str;
     // else
     string result = ""; result.assign(str);
-    for (int lastIndex = str.size() - 1; isdigit(result[lastIndex]); --lastIndex)
+    for (int lastIndex = str.size() - 1; isNumber(result[lastIndex]); --lastIndex)
         result.pop_back();
     return result;
 }
@@ -138,8 +217,6 @@ string getWordType(string currentLine, string& tempMeaning)
         }
         else
         {
-            if (pos1)
-                tempMeaning += " ";
             tempMeaning += container;
             pos1 = pos2 + 1;
             if (pos1 - 1 == currentLine.find_last_of(" "))
@@ -150,8 +227,11 @@ string getWordType(string currentLine, string& tempMeaning)
             }
             else
                 pos2 = currentLine.find_first_of(" ", pos1);
+            if (pos2 < currentLine.size())
+                tempMeaning += " ";
         }
     } while (pos2 < currentLine.size());
+    eraseURC(wordType);
     return wordType;
 }
 
@@ -164,12 +244,12 @@ bool readDatabase(string fname, vector<Word>& data)
     // else:
     string currentLine = "", lineBefore = "";
     /* temporary container for meaning part of a word */
-    string tempMeaning = ""  ;
+    string tempMeaning = "";
     Word temp; initWord(temp);
     int count = 0;
     while (getline(fp, currentLine))
     {
-        if (!size(currentLine) || !isContainingAlphaNum(currentLine) || !currentLine.compare(lineBefore) || size(currentLine) == 1)
+        if (size(currentLine) <= 1 || !currentLine.compare(lineBefore))
             continue;
         // else, process the line read:
         int pos0 = 0; // the beginning of a line
@@ -178,6 +258,7 @@ bool readDatabase(string fname, vector<Word>& data)
         int pos1 = currentLine.find("  ");
         temp.word = currentLine.substr(pos0, pos1);
         temp.word = eliminateEndingNumberFromWord(temp.word);
+        eraseURC(temp.word);
 
         // the word type
         string meaningToSplit, wordType = getWordType(currentLine.substr(pos1 + 2, currentLine.size() - pos1 - 2), meaningToSplit);
@@ -190,6 +271,8 @@ bool readDatabase(string fname, vector<Word>& data)
         // finish the data processing
         data.push_back(temp);
         lineBefore = currentLine;
+        initWord(temp);
+        temp.type.clear();
     }
 }
 
@@ -294,5 +377,17 @@ int menu2_Processing(HashTable& ht)
             }
         }
     } while (true);
+    return 0;
+}
+
+int finalProgram()
+{
+    vector<Word> data;
+    if (menu1_InputFromFile(data) == -1)
+        return 0; // Input from file
+    HashTable ht; initHashTable(ht, TABLE_SIZE);
+    putToTable(data, ht);      // Put words to table
+    cout << "Da dua du lieu nhan duoc vao co so du lieu." << endl;
+    menu2_Processing(ht);
     return 0;
 }

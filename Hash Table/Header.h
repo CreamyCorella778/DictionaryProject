@@ -1,12 +1,14 @@
 #pragma once
 #include <iostream>
 #include <iomanip>
+#include <cctype>
 #include <fstream>
 #include <algorithm>
 #include <numeric>
 #include <vector>
 #include <list>
 #include <string>
+#define TABLE_SIZE 10000
 
 using namespace std;
 
@@ -26,6 +28,7 @@ struct HashTable
 
 //---------------------------------------------------------
 void initWord(Word& w, string word = "", string type = "", vector<string> meaning = {});
+void initHashTable(HashTable& ht, int n);
 bool readDatabase(string fname, vector<Word>& data);
 bool writeDatabase(string fname, vector<Word> data);
 //--------------
@@ -42,5 +45,5 @@ int outputToFile(HashTable ht);
 //---------------
 int menu1_InputFromFile(vector<Word>& data);
 int menu2_Processing(HashTable& ht);
-
+int finalProgram();
 

@@ -1,9 +1,23 @@
-﻿  Source1.cpp
-C:\Users\user\source\repos\Dictionary\Hash Table\Source1.cpp(114,24): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\user\source\repos\Dictionary\Hash Table\Source1.cpp(122,24): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\user\source\repos\Dictionary\Hash Table\Source1.cpp(130,28): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\user\source\repos\Dictionary\Hash Table\Source1.cpp(149,40): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\user\source\repos\Dictionary\Hash Table\Source1.cpp(152,49): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\user\source\repos\Dictionary\Hash Table\Source1.cpp(178,18): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\user\source\repos\Dictionary\Hash Table\Source1.cpp(194): warning C4715: 'readDatabase': not all control paths return a value
+﻿  Source2.cpp
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(28,14): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(107,70): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(113,31): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(117,71): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(118,71): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(121,35): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(126,62): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(127,67): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(169,48): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(172,63): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(187,17): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(189,19): warning C4244: 'argument': conversion from 'double' to 'const unsigned __int64', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(192,56): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(200,62): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(209,67): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(240,54): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(243,61): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(248,68): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(251,75): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(436,62): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Hash Table\Source2.cpp(437,67): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
   Hash Table.vcxproj -> C:\Users\user\source\repos\Dictionary\x64\Debug\Hash Table.exe
