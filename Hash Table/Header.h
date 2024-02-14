@@ -8,7 +8,7 @@
 #include <vector>
 #include <list>
 #include <string>
-#define TABLE_SIZE 10000
+#define TABLE_SIZE 9973
 
 using namespace std;
 
@@ -29,13 +29,14 @@ struct HashTable
 //---------------------------------------------------------
 void initWord(Word& w, string word = "", string type = "", vector<string> meaning = {});
 void initHashTable(HashTable& ht, int n);
+bool isWordType(string str);
 bool readDatabase(string fname, vector<Word>& data);
 bool writeDatabase(string fname, vector<Word> data);
 //--------------
 void putToTable(vector<Word> arr, HashTable& ht);
-bool lookUpTable(HashTable ht, Word w, vector<list<Word>::iterator>& iters);
+bool lookUpTable(HashTable& ht, Word w, vector<list<Word>::iterator>& iters);
 void insertAnElement(HashTable& ht, Word w);
-void deleteAnElement(HashTable& ht, Word w);
+// void deleteAnElement(HashTable& ht, Word w);
 //-------------
 void addAWord(HashTable& ht);
 void editAWord(HashTable& ht);

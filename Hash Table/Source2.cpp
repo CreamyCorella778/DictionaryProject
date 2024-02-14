@@ -33,6 +33,12 @@ int hashFunction1(int val,  int tableSize)
 int hashFunction2(int val, int tableSize, int hashTime)
 {
     return (hashFunction1(val, tableSize) + int(pow(hashTime,2))) % tableSize;
+    /*
+        unsigned long hash = 5381;
+    for (char c : word) {
+        hash = ((hash << 5) + hash) + c; // hash * 33 + c 
+    return hash % table_size;
+    */
 }
 
 int hashString(string str) {
@@ -60,11 +66,17 @@ void printWord(Word w)
     for (string j : w.type)
     {
         cout << j << " ";
-        while (it != w.meaning.end() && *it != "")
-        {
-            cout << *it << " ";
-            ++it;
-        }
+        while (it != w.meaning.end())
+            if (*it == "")
+            {
+                ++it;
+                break;
+            }
+            else
+            {
+                cout << *it << " ";
+                ++it;
+            }
         /*while (i < w.meaning.size() && w.meaning[i] != "")
             cout << w.meaning[i];*/
     }
@@ -121,22 +133,25 @@ void putToTable(vector<Word> arr, HashTable& ht)
     ht.numberOfElements = arr.size();
 }
 
-bool lookUpTable(HashTable ht, Word w, vector<Word>& searchResult)
+bool lookUpTable(HashTable& ht, Word w, vector<list<Word>::iterator>& iters)
 {
     int hashVal1 = hashFunction1(encodeWord(w), ht.table.size());
     int hashVal2 = hashFunction2(hashVal1, ht.table[hashVal1].size(), 2);
-    list <Word> l = ht.table[hashVal1][hashVal2];
+    list <Word>& l = ht.table[hashVal1][hashVal2];
     if (l.empty())
         return false;
     else 
     {
         bool isFound = false;
         for (list<Word>::iterator iter = l.begin(); iter != l.end(); ++iter)
-            if (!noCaseSensitiveCompare(iter->word, w.word))// || findSecondaryWordInMeaning(w, *iter))
+            if (!noCaseSensitiveCompare(iter->word, w.word))
             {
-                searchResult.push_back(*iter);
+                list<Word>::iterator it = iter;
+                iters.push_back(it);
                 isFound = true;
-            }
+            }    
+        if (!isFound)
+            iters.push_back(l.end());
         return isFound;
     }
 }
@@ -153,7 +168,7 @@ bool isIn(vector<int> arr, int val)
 
 bool isARowFull(HashTable ht, int rowIdx)
 {
-    return  ht.table[rowIdx].size() == ht.sizeEachRow[rowIdx];
+    return  ht.table[rowIdx].size() <= ht.sizeEachRow[rowIdx];
 }
 
 vector<Word> convertVectorOfListToVector(vector<list<Word>> vec)
@@ -180,7 +195,7 @@ vector<Word> convertVectorOfListToVector(vector<list<Word>> vec)
     return result;
 }
 
-void reHashing(vector<list<Word> >& row, int hashVal1, Word w)
+void reHashing(vector<list<Word>>& row, int hashVal1, Word w)
 {
     vector<Word> container = convertVectorOfListToVector(row);
     container.push_back(w);
@@ -270,6 +285,11 @@ void addAWord(HashTable& ht)
     do
     {
         cout << "Nhap tu loai cua tu. Tu loai co dang \"<tu_loai>.\": "; getline(cin, type);
+        if (!isWordType(type))
+        {
+            cout << "Tu loai khong hop le. Hay nhap lai." << endl;
+            continue;
+        }
         types.push_back(type);
         int count = 0;
         cout << "Ung voi tu loai nay cua tu thi tu moi co bao nhieu nghia? "; cin >> count; cin.ignore();
@@ -278,7 +298,7 @@ void addAWord(HashTable& ht)
             cout << "Nhap nghia. Nghia nen di kem voi cac chu thich ve tu: "; getline(cin, meaning);
             meanings.push_back(meaning);
         }
-        cout << "Tu moi co con tu loai khac nua khong?\nKhong: 0\t\t\t\t\t\tCo: So khac"; cin >> flag;
+        cout << "Tu moi co con tu loai khac nua khong?\n0. Khong\t\t\t\t\t\tSo khac. Co: "; cin >> flag; cin.ignore();
         if (flag)
             meanings.push_back("");
     } while (flag);
@@ -293,27 +313,27 @@ void editAWord(HashTable& ht)
     string word, type, meaning;
     vector<string> types, meanings;
     cout << "Nhap tu moi can sua: "; getline(cin, word);
-    Word w; initWord(w, word); vector<Word> lookUpResult;
-    bool found = lookUpTable(ht, w, lookUpResult);
+    Word w; initWord(w, word); vector<list<Word>::iterator> iters;
+    bool found = lookUpTable(ht, w, iters);
     if (!found)
     {
         cout << "Khong ton tai tu. Chuc ban may man lan sau." << endl;
         return;
     }
-    cout << "Nhap so thu tu tuong ung voi tu ban muon sua:" << endl;
     int index = 0, choice = 0;
-    for (Word it : lookUpResult)
+    cout << "Nhap so thu tu tuong ung voi tu ban muon sua:" << endl;
+    for (list<Word>::iterator it : iters)
     {
         cout << index << ". ";
-        printWord(it);
+        printWord(*it);
         cout << endl;
         ++index;
     }
-    cout << "So khac. Huy, khong sua nua: ";
-    cin >> choice;
-    if (choice >= lookUpResult.size() || choice < 0)
+    cout << "So khac. Huy, khong sua nua: "; cin >> choice;
+    cin.ignore();
+    if (choice >= iters.size() || choice < 0)
     {
-        cout << "Chuc ban may man lan sau." << endl;
+        cout << "Chuc ban may man lan sau." << endl;    
         return;
     }
     //else
@@ -321,6 +341,7 @@ void editAWord(HashTable& ht)
     int choice_ = 0;
     cout << "Ban muon sua nghia cua tu nhu the nao? Nhap so tuong ung voi lua chon:\n1. Tao mot nghia hoan toan moi cho tu\n2. Sua chi mot trong so cac nghia cua tu\nSo khac. Huy, khong sua nua: ";
     cin >> choice_;
+    cin.ignore();
     switch (choice_)
     {
         case 1:
@@ -328,9 +349,14 @@ void editAWord(HashTable& ht)
             int flag = 1;
             do
             {
-                lookUpResult[choice].meaning.clear();
-                lookUpResult[choice].type.clear();
+                iters[choice]->meaning.clear();
+                iters[choice]->type.clear();
                 cout << "Nhap tu loai cua tu. Tu loai co dang \"<tu_loai>.\": "; getline(cin, type);
+                if (!isWordType(type))
+                {
+                    cout << "Tu loai khong hop le. Hay nhap lai." << endl;
+                    continue;
+                }
                 types.push_back(type);
                 int count = 0;
                 cout << "Ung voi tu loai nay cua tu thi tu moi co bao nhieu nghia? "; cin >> count; cin.ignore();
@@ -339,40 +365,38 @@ void editAWord(HashTable& ht)
                     cout << "Nhap nghia. Nghia nen di kem voi cac chu thich ve tu: "; getline(cin, meaning);
                     meanings.push_back(meaning);
                 }
-                cout << "Tu moi co con tu loai khac nua khong?\nKhong: 0\t\t\t\t\t\tCo: So khac"; cin >> flag;
+                cout << "Tu moi co con tu loai khac nua khong?\n0. Khong\t\t\t\t\t\tSo khac. Co: "; cin >> flag;
+                cin.ignore();
                 if (flag)
                     meanings.push_back("");
             } while (flag);
-            initWord(lookUpResult[choice], word, type, meanings);
-            lookUpResult[choice].type = types;
-            cout <<  "Da sua thanh cong! Tu moi duoc sua nghia la:" << endl;
-            printWord(lookUpResult[choice]);
-            cout << endl;
+            word = iters[choice]->word;
+            initWord(*iters[choice], word, type, meanings);
+            iters[choice]->type = types;
         }
         break;
         case 2:
         {
-            int _choice = 1; index = 0;
+            int _choice = 1; index = 1;
             cout << "Chon nghia cua tu de sua:" << endl;
-            for (string i : lookUpResult[choice].meaning)
+            for (string i : iters[choice]->meaning)
                 if (i != "")
                 {
-                    cout << index << ". " << i << endl;
+                    cout << index << i << endl;
                     ++index;
                 }
+                else
+                    ++index;
             cout << "So khac. Huy, khong sua nua: ";
-            cin >> _choice;
-            if (_choice >= lookUpResult[choice].meaning.size() - lookUpResult[choice].type.size() + 1 || _choice < 0)
+            cin >> _choice; cin.ignore();
+            if (_choice - 1 >= iters[choice]->meaning.size() - iters[choice]->type.size() + 1 || _choice - 1 < 0)
             {
                 cout << "Chuc ban may man lan sau." << endl;
                 return;
             }
             // else
-            cout << "Nhap nghia moi: "; getline(cin, meaning);
-            lookUpResult[choice].meaning[_choice] = meaning;
-            cout <<  "Da sua thanh cong! Tu moi duoc sua nghia la:" << endl;
-            printWord(lookUpResult[choice]);
-            cout << endl;
+            cout << "Nhap nghia moi. Khong nhap gi va nhan Enter de xoa nghia da chon: "; getline(cin, meaning);
+            iters[choice]->meaning[_choice - 1] = meaning;
         }
         break;
         default:
@@ -381,14 +405,23 @@ void editAWord(HashTable& ht)
             return;
         }
     }
+    // int hashVal1 = hashFunction1(encodeWord(w), ht.table.size());
+    // int hashVal2 = hashFunction2(hashVal1, ht.table[hashVal1].size(), 2);
+    // list<Word>::iterator it = ht.table[hashVal1][hashVal2].begin();
+    // while (it != ht.table[hashVal1][hashVal2].end() && it->word != iters[choice]->word)
+    //     ++it;
+    // *it = *iters[choice];
+    cout <<  "Da sua thanh cong! Tu moi duoc sua nghia la:" << endl;
+    printWord(*iters[choice]);
+    cout << endl;
 }
 
 void lookUpDictionary(HashTable ht)
 {
-    string word; Word w; vector<Word> lookUpResult;
-    cout << "Nhap tu can tra: "; cin >> word;
+    string word; Word w; vector<list<Word>::iterator> iters;
+    cout << "Nhap tu can tra: "; getline(cin, word);
     initWord(w, word); 
-    bool isSuccess = lookUpTable(ht, w, lookUpResult);
+    bool isSuccess = lookUpTable(ht, w, iters);
     if (!isSuccess)
     {
         cout << "Khong tim thay tu. Chuc ban may man lan sau." << endl;
@@ -396,9 +429,9 @@ void lookUpDictionary(HashTable ht)
     }
     // else
     cout << "Day la cac tu toi tim duoc:" << endl;
-    for (Word w : lookUpResult)
+    for (list<Word>::iterator it : iters)
     {
-        printWord(w);
+        printWord(*it);
         cout << endl;
     }
     return;
@@ -406,10 +439,10 @@ void lookUpDictionary(HashTable ht)
 
 void deleteAWord(HashTable& ht)
 {
-    string word; Word w; vector<Word> lookUpResult;
-    cout << "Nhap tu can tra: "; cin >> word;
+    string word; Word w; vector<list<Word>::iterator> iters;
+    cout << "Nhap tu can tra: "; getline(cin, word);
     initWord(w, word); 
-    bool isExist = lookUpTable(ht, w, lookUpResult);
+    bool isExist = lookUpTable(ht, w, iters);
     if (!isExist)
     {
         cout << "Khong tim thay tu. Chuc ban may man lan sau." << endl;
@@ -418,16 +451,16 @@ void deleteAWord(HashTable& ht)
     // else
     cout << "Nhap so thu tu tuong ung voi tu ban muon xoa:" << endl;
     int index = 0, choice = 0;
-    for (Word w : lookUpResult)
+    for (list<Word>::iterator it : iters)
     {
         cout << index << ". ";
-        printWord(w);
+        printWord(*it);
         cout << endl;
         ++index;
     }
     cout << "So khac. Huy, khong sua nua: ";
     cin >> choice;
-    if (choice >= lookUpResult.size() || choice < 0)
+    if (choice >= iters.size() || choice < 0)
     {
         cout << "Chuc ban may man lan sau." << endl;
         return;
@@ -435,10 +468,10 @@ void deleteAWord(HashTable& ht)
     //else
     int hashVal1 = hashFunction1(encodeWord(w), ht.table.size());
     int hashVal2 = hashFunction2(hashVal1, ht.table[hashVal1].size(), 2);
-    list<Word>::iterator it = ht.table[hashVal1][hashVal2].begin();
-    while (it != ht.table[hashVal1][hashVal2].end() && it->word != lookUpResult[choice].word)
-        ++it;
-    ht.table[hashVal1][hashVal2].erase(it);
+    // list<Word>::iterator it = ht.table[hashVal1][hashVal2].begin();
+    // while (it != ht.table[hashVal1][hashVal2].end() && it->word != iters[choice]->word)
+    //     ++it;
+    ht.table[hashVal1][hashVal2].erase(iters[choice]);
     --ht.numberOfElements;
     --ht.sizeEachRow[hashVal1];
     cout << "Da xoa thanh cong." << endl;

@@ -35,41 +35,31 @@ bool isOneURCApart(string a, string b) // URC = Unicode Replacement Character: �
         return false;
 }
 
-//bool isContaining(string str)
-//{
-//    string URC = { -17, -65, -67 };
-//    return str.find(URC) < str.size();
-//}
-//
-//void eraseURC(string& str)
-//{
-//    string URC = { -17, -65, -67 };
-//    if (isContainingURC(str))
-//    {
-//        int pos = str.find(URC);
-//        str.erase(pos, URC.size());
-//    }
-//    return;
-//}
-//
-//bool isOneURCApart(string a, string b) // URC = Unicode Replacement Character: ï¿½
-//{
-//    string URC = { -17, -65, -67 };
-//    if (abs(int(a.size() - b.size())) != URC.size())
-//        return false;
-//    string temp = a.size() > b.size() ? a : b, smaller = a.size() <= b.size() ? a : b;
-//    temp.erase(temp.find(smaller), smaller.size());
-//    if (temp == URC)
-//        return true;
-//    else
-//        return false;
-//}
+bool isContainingStrangeSymbol(string str)
+{
+    for (char i : str)
+        if (i < 0)
+            return true;
+    return false;
+}
+
+void eraseStrangeSymbol(string& str)
+{
+    eraseURC(str);
+    for (int i = 0; i < str.size(); ++i)
+        if (str[i] < 0)
+        {
+            str.erase(i, 1);
+            --i;
+        }
+    return;
+}
 
 bool isWordType(string str)
 {
-    vector<string> types = {"n.", "n.pl.", "v.", "adj.", "Adj.", "adv.", "Adv.", "abbr.", "Abbr.", "prep.", "comb.", "contr.", "int.", "symb.", "pron."};
+    vector<string> types = {"n.", "n.pl.", "v.", "adj.", "Adj.", "adv.", "Adv.", "abbr.", "Abbr.", "prep.", "comb.", "contr.", "int.", "symb.", "pron.", "det.", "conj.", "intj."};
     for (string i : types)
-        if (str.find(i) < str.size() && (str == i || isOneURCApart(str, i)))
+        if (str.find(i) < str.size() && ((str.size() - i.size() <= 1) || isOneURCApart(str, i)))
             return true;
     return false;
 }
@@ -101,7 +91,7 @@ vector<string> splitIntoMeanings(string tempMeaning, vector<string>& extraTypes)
                 }
             }
             container.push_back(tempMeaning[i]);
-            eraseURC(container);
+            eraseStrangeSymbol(container);
             result.push_back(container);
             container.clear();
             i += 2;
@@ -118,7 +108,7 @@ vector<string> splitIntoMeanings(string tempMeaning, vector<string>& extraTypes)
                 container.push_back(tempMeaning[i++]);
                 container.push_back(tempMeaning[i++]);
             }
-            eraseURC(container);
+            eraseStrangeSymbol(container);
         }
         else if (tempMeaning[i] == '[')
         {
@@ -129,7 +119,7 @@ vector<string> splitIntoMeanings(string tempMeaning, vector<string>& extraTypes)
             }
             if (i < tempMeaning.size())
                 container.push_back(tempMeaning[i++]);
-            eraseURC(container);
+            eraseStrangeSymbol(container);
             result.push_back(container);
         }
         else
@@ -151,7 +141,7 @@ vector<string> splitIntoMeanings(string tempMeaning, vector<string>& extraTypes)
             container.push_back(tempMeaning[i]);
             if (isWordType(container))
             {
-                eraseURC(container);
+                eraseStrangeSymbol(container);
                 extraTypes.push_back(container);
                 i += 2;
                 result.push_back("");
@@ -166,7 +156,7 @@ vector<string> splitIntoMeanings(string tempMeaning, vector<string>& extraTypes)
             } 
             else
             {
-                eraseURC(container);
+                eraseStrangeSymbol(container);
                 result.push_back(container);
                 container.clear();
                 i += 2;
@@ -178,7 +168,7 @@ vector<string> splitIntoMeanings(string tempMeaning, vector<string>& extraTypes)
     {
         while (i < tempMeaning.size())
             container.push_back(tempMeaning[i++]);
-        eraseURC(container);
+        eraseStrangeSymbol(container);
         result.push_back(container);
     }
     return result;
@@ -231,7 +221,7 @@ string getWordType(string currentLine, string& tempMeaning)
                 tempMeaning += " ";
         }
     } while (pos2 < currentLine.size());
-    eraseURC(wordType);
+    eraseStrangeSymbol(wordType);
     return wordType;
 }
 
@@ -258,7 +248,7 @@ bool readDatabase(string fname, vector<Word>& data)
         int pos1 = currentLine.find("  ");
         temp.word = currentLine.substr(pos0, pos1);
         temp.word = eliminateEndingNumberFromWord(temp.word);
-        eraseURC(temp.word);
+        eraseStrangeSymbol(temp.word);
 
         // the word type
         string meaningToSplit, wordType = getWordType(currentLine.substr(pos1 + 2, currentLine.size() - pos1 - 2), meaningToSplit);
@@ -344,7 +334,7 @@ int menu2_Processing(HashTable& ht)
         cout << "5. Luu tu dien ra tep .txt." << endl;
         cout << "So khac. Khong lam gi nua: ";
         cin >> choice;
-        if (choice != 1)
+        if (choice < 1 || choice > 5)
         {
             cout << "Chuc ban may man lan sau." << endl;
             return -1;
