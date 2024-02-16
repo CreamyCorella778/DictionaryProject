@@ -20,41 +20,60 @@ void initHashTable(HashTable& ht, int n)
     ht.sizeEachRow.resize(n);
 }
 
-// Knuth's hash func
+/* Daniel J. Bernstein's hash function DJB2
+- Initial value: 5381
+- Base: 33
+- Additional Info: None
+Based on polynomial hashing
+*/
+int hashString1(string str) 
+{
+    unsigned long hash = 5381;
+    for (char c : str) {
+        c = tolower(c); // convenience when searching for word regardless case-sensitiveness
+        hash = ((hash << 5) + hash) + c; // = hash * 33 + c  because << 5 = * 2^5 = * 32
+    }
+    return hash;
+}
+
+// Knuth's hash function
 int hashFunction1(int val,  int tableSize)
 {
+    // int val = hashString1(w.word);
     const double A = (sqrt(5) - 1) / 2.0;
     double frac = val * A - floor(val * A);
     int hash = floor(tableSize * frac);
     return hash;
 }
 
-// quadratic probing
-int hashFunction2(int val, int tableSize, int hashTime)
+// Simple hashing function for string that can distinct strings of different permutation
+int hashString2(string str) 
 {
-    return (hashFunction1(val, tableSize) + int(pow(hashTime,2))) % tableSize;
-    /*
-        unsigned long hash = 5381;
-    for (char c : word) {
-        hash = ((hash << 5) + hash) + c; // hash * 33 + c 
-    return hash % table_size;
-    */
-}
-
-int hashString(string str) {
-    int hash = 0;
-    int prime = 31;
-    for (char c : str) {
-        c = tolower(c);
-        hash = hash * prime + c;
+    int res = 0;
+    for (int i = 0; i < str.length(); ++i) 
+    {
+        int c = tolower(int(str[i]));  // convenience when searching for word regardless case-sensitiveness
+        res += c * 10 + i;
     }
-    return hash;
+    return res;
 }
 
-//translate from Word to Integer
-int encodeWord(Word w)
+// Simple modulo method
+int hashFunction2(int val, int tableSize)
 {
-    int val = hashString(w.word);
+    // int val = hashString2(w.word);
+    return val % tableSize;
+}
+
+// Quadratic probing
+int hashFunction3(int val, int tableSize, int hashTime)
+{
+    return (val + int(pow(hashTime,2))) % tableSize;
+}
+
+int encodeWord(Word w, int (*funcPtr)(string str))
+{
+    int val = funcPtr(w.word);
     return val;
 }
 
@@ -116,7 +135,7 @@ void putToTable(vector<Word> arr, HashTable& ht)
 {
     for (int i = 0; i < arr.size(); ++i)
     {
-        int hashVal = hashFunction1(encodeWord(arr[i]), ht.table.size());
+        int hashVal = hashFunction1(encodeWord(arr[i], hashString1), ht.table.size());
         ht.sizeEachRow[hashVal] += 1;
     }
     for (int i = 0; i < ht.table.size(); ++i)
@@ -126,8 +145,8 @@ void putToTable(vector<Word> arr, HashTable& ht)
     }
     for (int i = 0; i < arr.size(); ++i)
     {
-        int hashVal1 = hashFunction1(encodeWord(arr[i]), ht.table.size());
-        int hashVal2 = hashFunction2(hashVal1, ht.table[hashVal1].size(), 2);
+        int hashVal1 = hashFunction1(encodeWord(arr[i], hashString1), ht.table.size()), k = 0;
+        int hashVal2 = hashFunction2(encodeWord(arr[i], hashString2), ht.table[hashVal1].size());
         ht.table[hashVal1][hashVal2].push_back(arr[i]);
     }
     ht.numberOfElements = arr.size();
@@ -135,8 +154,8 @@ void putToTable(vector<Word> arr, HashTable& ht)
 
 bool lookUpTable(HashTable& ht, Word w, vector<list<Word>::iterator>& iters)
 {
-    int hashVal1 = hashFunction1(encodeWord(w), ht.table.size());
-    int hashVal2 = hashFunction2(hashVal1, ht.table[hashVal1].size(), 2);
+    int hashVal1 = hashFunction1(encodeWord(w, hashString1), ht.table.size());
+    int hashVal2 = hashFunction2(encodeWord(w, hashString2), ht.table[hashVal1].size());
     list <Word>& l = ht.table[hashVal1][hashVal2];
     if (l.empty())
         return false;
@@ -177,14 +196,14 @@ vector<Word> convertVectorOfListToVector(vector<list<Word>> vec)
     if (vec.empty())
         return result;
     // else
-    int hashTime = 0;
     vector<int> hashHistory;
     for (int j = 0; j < vec.size(); ++j)
     {
-        int hashVal = hashFunction2(j, vec.size(), hashTime);
+        int hashTime = 0;
+        int hashVal = hashFunction2(j, vec.size());
         hashTime++;
         while (vec[hashVal].empty() && isIn(hashHistory, hashVal))
-            hashVal = hashFunction2(hashVal, vec[hashVal].size(), hashTime++);
+            hashVal = hashFunction3(hashVal, vec[hashVal].size(), hashTime++);
         hashHistory.push_back(hashVal);
         for (list<Word>::iterator it = vec[hashVal].begin(); it !=  vec[hashVal].end(); ++it)
         {
@@ -195,7 +214,7 @@ vector<Word> convertVectorOfListToVector(vector<list<Word>> vec)
     return result;
 }
 
-void reHashing(vector<list<Word>>& row, int hashVal1, Word w)
+void reHashing(vector<list<Word>>& row, Word w) // w: word to insert to the row
 {
     vector<Word> container = convertVectorOfListToVector(row);
     container.push_back(w);
@@ -204,7 +223,7 @@ void reHashing(vector<list<Word>>& row, int hashVal1, Word w)
     row.resize(pow(oldSize, 2));
     for (int i = 0; i < container.size(); ++i)
     {
-        int hashVal2 = hashFunction2(hashVal1, row.size(), 2);
+        int hashVal2 = hashFunction2(encodeWord(container[i], hashString2), row.size());
         row[hashVal2].push_back(container[i]);
     }
     container.clear();
@@ -212,16 +231,16 @@ void reHashing(vector<list<Word>>& row, int hashVal1, Word w)
 
 void insertAnElement(HashTable& ht, Word w)
 {
-    int hashVal1 = hashFunction1(encodeWord(w), ht.table.size());
+    int hashVal1 = hashFunction1(encodeWord(w, hashString1), ht.table.size());
     if (isARowFull(ht, hashVal1))
     {    
-        reHashing(ht.table[hashVal1], hashVal1, w);
+        reHashing(ht.table[hashVal1], w);
         ht.sizeEachRow[hashVal1]++;
         ht.numberOfElements++;
         return;
     }
     // else
-    int hashVal2 = hashFunction2(hashVal1, ht.table[hashVal1].size(), 2);
+    int hashVal2 = hashFunction2(encodeWord(w, hashString2), ht.table[hashVal1].size());
     ht.table[hashVal1][hashVal2].push_back(w);
     ht.sizeEachRow[hashVal1]++;
     ht.numberOfElements++;
@@ -255,15 +274,15 @@ vector<Word> convertTableIntoArr(HashTable ht)
         int hashVal1 = hashFunction1(i, ht.table.size());
         int hashTime = 1;
         while (isIn(hashHistory1, hashVal1))
-            hashVal1 = hashFunction2(hashVal1, ht.table.size(), hashTime++);
+            hashVal1 = hashFunction3(hashVal1, ht.table.size(), hashTime++);
         hashHistory1.push_back(hashVal1);
         for (int j = 0; j < ht.table[hashVal1].size(); ++j)
         {
             hashTime = 0;
-            int hashVal2 = hashFunction2(j, ht.table[hashVal1].size(), hashTime);
+            int hashVal2 = hashFunction2(j, ht.table[hashVal1].size());
             hashTime++;
             while (ht.table[hashVal1][hashVal2].empty() && isIn(hashHistory2, hashVal2))
-                hashVal2 = hashFunction2(hashVal2, ht.table[hashVal1].size(), hashTime++);
+                hashVal2 = hashFunction3(hashVal2, ht.table[hashVal1].size(), hashTime++);
             hashHistory2.push_back(hashVal2);
             for (list<Word>::iterator it = ht.table[hashVal1][hashVal2].begin(); it !=  ht.table[hashVal1][hashVal2].end(); ++it)
             {
@@ -466,8 +485,8 @@ void deleteAWord(HashTable& ht)
         return;
     }
     //else
-    int hashVal1 = hashFunction1(encodeWord(w), ht.table.size());
-    int hashVal2 = hashFunction2(hashVal1, ht.table[hashVal1].size(), 2);
+    int hashVal1 = hashFunction1(encodeWord(w, hashString1), ht.table.size());
+    int hashVal2 = hashFunction2(encodeWord(w, hashString2), ht.table[hashVal1].size());
     // list<Word>::iterator it = ht.table[hashVal1][hashVal2].begin();
     // while (it != ht.table[hashVal1][hashVal2].end() && it->word != iters[choice]->word)
     //     ++it;
@@ -488,7 +507,7 @@ int outputToFile(HashTable ht)
         isWritten = writeDatabase(fname, data);
         if (!isWritten) count++;
     } while (!isWritten && count < 5);
-    if (count == 5)
+    if (!isWritten)
     {
         cout << "Khong the mo tep! Chuc ban may man lan sau" << endl;
         return -1;

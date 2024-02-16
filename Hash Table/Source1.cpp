@@ -281,8 +281,12 @@ bool writeDatabase(string fname, vector<Word> data)
         {
             fp << j << " ";
             while (it != i.meaning.end() && *it != "")
+            {
                 fp << *it << " ";
+                it++;
+            }
         }
+        fp << endl;
     }
     return true;
 }
