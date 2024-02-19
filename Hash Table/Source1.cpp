@@ -277,16 +277,29 @@ bool writeDatabase(string fname, vector<Word> data)
     {
         fp << i.word << "  ";
         vector<string>::iterator it = i.meaning.begin();
-        for (string j : i.type)
-        {
-            fp << j << " ";
+        if (i.type.empty())
             while (it != i.meaning.end() && *it != "")
             {
                 fp << *it << " ";
                 it++;
             }
-        }
-        fp << endl;
+        else
+            for (string j : i.type)
+            {
+                fp << j << " ";
+                while (it != i.meaning.end())
+                    if (*it == "")
+                    {
+                        ++it;
+                        break;
+                    }
+                    else
+                    {
+                        fp << *it << " ";
+                        ++it;
+                    }
+            }
+        fp << endl << endl;
     }
     return true;
 }

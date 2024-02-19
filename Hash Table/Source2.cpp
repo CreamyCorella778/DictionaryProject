@@ -314,8 +314,10 @@ void addAWord(HashTable& ht)
         cout << "Ung voi tu loai nay cua tu thi tu moi co bao nhieu nghia? "; cin >> count; cin.ignore();
         for (int i = 0; i < count; ++i)
         {
-            cout << "Nhap nghia. Nghia nen di kem voi cac chu thich ve tu: "; getline(cin, meaning);
-            meanings.push_back(meaning);
+            cout << "Nhap nghia. Nghia nen di kem voi cac chu thich ve tu. Ket thuc nghia nen co dau cham: "; 
+            getline(cin, meaning);
+            string meaning__ = to_string(i + 1) + " " + meaning;
+            meanings.push_back(meaning__);
         }
         cout << "Tu moi co con tu loai khac nua khong?\n0. Khong\t\t\t\t\t\tSo khac. Co: "; cin >> flag; cin.ignore();
         if (flag)
@@ -381,8 +383,10 @@ void editAWord(HashTable& ht)
                 cout << "Ung voi tu loai nay cua tu thi tu moi co bao nhieu nghia? "; cin >> count; cin.ignore();
                 for (int i = 0; i < count; ++i)
                 {
-                    cout << "Nhap nghia. Nghia nen di kem voi cac chu thich ve tu: "; getline(cin, meaning);
-                    meanings.push_back(meaning);
+                    cout << "Nhap nghia. Nghia nen di kem voi cac chu thich ve tu. Ket thuc nghia nen co dau cham: "; 
+                    getline(cin, meaning);
+                    string meaning__ = to_string(i + 1) + " " + meaning;
+                    meanings.push_back(meaning__);
                 }
                 cout << "Tu moi co con tu loai khac nua khong?\n0. Khong\t\t\t\t\t\tSo khac. Co: "; cin >> flag;
                 cin.ignore();
