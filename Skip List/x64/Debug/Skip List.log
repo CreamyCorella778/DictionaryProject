@@ -1,2 +1,12 @@
-﻿  Source2.cpp
+﻿  Source1.cpp
+C:\Users\user\source\repos\Dictionary\Skip List\Source1.cpp(19,17): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Skip List\Source1.cpp(183,24): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Skip List\Source1.cpp(191,24): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Skip List\Source1.cpp(199,28): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Skip List\Source1.cpp(216,40): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Skip List\Source1.cpp(219,49): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Skip List\Source1.cpp(230,24): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Skip List\Source1.cpp(234,14): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Skip List\Source1.cpp(271,18): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\source\repos\Dictionary\Skip List\Source1.cpp(290): warning C4715: 'readDatabase': not all control paths return a value
   Skip List.vcxproj -> C:\Users\user\source\repos\Dictionary\x64\Debug\Skip List.exe

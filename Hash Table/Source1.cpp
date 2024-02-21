@@ -225,6 +225,20 @@ string getWordType(string currentLine, string& tempMeaning)
     return wordType;
 }
 
+bool checkAndProcessWordUsage(string currentLine, Word &previousWord)
+{
+    int pos0 = 0, pos1 = currentLine.find("  ");
+    string wordRead = currentLine.substr(pos0, pos1);
+    if (wordRead != "Usage")
+        return false;
+    int pos2 = currentLine.find_first_of(" ", pos1 + 2);
+    string wordType = currentLine.substr(pos1 + 2, pos2 - pos1 - 2);
+    if (wordType == "n.") // whether it is the real word "usage"
+        return false;
+    previousWord.meaning.push_back(currentLine);
+    return true;
+}
+
 bool readDatabase(string fname, vector<Word>& data)
 {
     ifstream fp;
@@ -241,6 +255,15 @@ bool readDatabase(string fname, vector<Word>& data)
     {
         if (size(currentLine) <= 1 || !currentLine.compare(lineBefore))
             continue;
+
+        // process if currentLine is the usage of word above
+        if (!data.empty())
+        {
+            bool flag = checkAndProcessWordUsage(currentLine, data[data.size() - 1]);
+            if (flag) // finish processing this line by the function
+                continue;
+        }
+
         // else, process the line read:
         int pos0 = 0; // the beginning of a line
 
