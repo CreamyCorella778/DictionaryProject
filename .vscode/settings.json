@@ -9,6 +9,8 @@
         "xmemory": "cpp",
         "xutility": "cpp",
         "random": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "ostream": "cpp",
+        "fstream": "cpp"
     }
 }

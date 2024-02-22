@@ -364,7 +364,7 @@ int menu1_InputFromFile(vector<Word>& data)
     }
 }
 
-int menu2_Processing(SkipList &skl)
+int menu2_Processing(Node*& root)
 {
     int choice = 0;
     do
@@ -388,19 +388,19 @@ int menu2_Processing(SkipList &skl)
             switch(choice)
             {
                 case 1: 
-                    lookUpDictionary(skl);
+                    lookUpDictionary(root);
                     break;
                 case 2:
-                    addAWord(skl);
+                    addAWord(root);
                     break;
                 case 3:
-                    editAWord(skl);
+                    editAWord(root);
                     break;
                 case 4:
-                    deleteAWord(skl);
+                    deleteAWord(root);
                     break;
                 case 5:
-                    outputToFile(skl);
+                    outputToFile(root);
                     break;
                 default:
                 {
@@ -418,9 +418,8 @@ int finalProgram()
     vector<Word> data;
     if (menu1_InputFromFile(data) == -1)
         return 0; // Input from file
-    SkipList skl; initList(skl, MAX_LEVEL, PROBABILITY);
-    putToList(skl, data);      // Put words to table
+    Node* root = putToTrie(data);      // Put words to trie
     cout << "Da dua du lieu nhan duoc vao co so du lieu." << endl;
-    menu2_Processing(skl);
+    menu2_Processing(root);
     return 0;
 }

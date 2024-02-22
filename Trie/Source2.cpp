@@ -35,7 +35,23 @@ void insertAnElement(Node*& root, Word w)
         current = current->children[tolower(w.word[i])];
     }
     current->isCompleteWordInDict = true;
-    current->data = w;
+    if (!isInitialized(current->data))
+        current->data = w;
+    /*
+    if (!current->isCompleteWordInDict)
+    {
+        current->isCompleteWordInDict = true;
+        current->data = w;
+    }
+    */
+}
+
+Node* putToTrie(vector<Word> data)
+{
+    Node* root = nullptr;
+    for (Word i : data)
+        insertAnElement(root, i);
+    return root;
 }
 
 Node** searchForElement(Node* root, string word)

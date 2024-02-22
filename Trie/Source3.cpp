@@ -89,15 +89,27 @@ bool isIn(vector<int> arr, int val)
     return false;
 }
 
-vector<Word> convertSkipListIntoArr(SkipList skl)
+vector<Word> convertTrieIntoArr(Node* root)
 {
-    vector<Word> data;
-    for (Node* i = skl.header->forward[0]; i; i = i->forward[0])
-        data.push_back(i->data);
-    return data;
+    vector<Word> mainData;
+    vector<char> chars = getAlphabetFromFile(ALPHABET_FILENAME);
+    if (!root)
+        return mainData;
+    if (root->isCompleteWordInDict)
+        mainData.push_back(root->data); // <=> mainData.push_back(root->data)
+    else
+        for (int i : chars)
+            if (root->children.find(i) == root->children.end())
+                continue;
+            else
+            {
+                vector<Word> subdata = convertTrieIntoArr(root->children[i]);
+                mainData.insert(mainData.end(), subdata.begin(), subdata.end());
+            }
+    return mainData;
 }
 
-void addAWord(SkipList& skl)
+void addAWord(Node*& root)
 {
     string word, type, meaning;
     vector<string> types, meanings;
@@ -127,41 +139,26 @@ void addAWord(SkipList& skl)
     } while (flag);
     Word w = initWord(word, type, meanings);
     w.type = types;
-    Node* node = createNode(w);
-    insertAnElement(skl, node);
+    insertAnElement(root, w);
     cout << "Da them thanh cong." << endl;
 }
 
-void editAWord(SkipList& skl)
+void editAWord(Node*& root)
 {
     string word, type, meaning;
     vector<string> types, meanings;
     cout << "Nhap tu moi can sua: "; getline(cin, word);
-    Word w = initWord(word); 
-    vector<Node**> searchResult = searchForElement(skl, w);
-    if (searchResult.empty())
+    Node** searchResult = searchForElement(root, word);
+    if (!searchResult)
     {
         cout << "Khong ton tai tu. Chuc ban may man lan sau." << endl;
         return;
     }
     int index = 0, choice = 0;
-    cout << "Nhap so thu tu tuong ung voi tu ban muon sua:" << endl;
-    for (Node** i : searchResult)
-    {
-        cout << index << ". ";
-        printWord((*i)->data);
-        cout << endl;
-        ++index;
-    }
-    cout << "So khac. Huy, khong sua nua: "; cin >> choice;
-    cin.ignore();
-    if (choice >= searchResult.size() || choice < 0)
-    {
-        cout << "Chuc ban may man lan sau." << endl;    
-        return;
-    }
-    //else
-        //w = searchResult[choice];
+    cout << "Day la tu ban chuan bi sua:" << endl;
+    printWord((*searchResult)->data);
+    cout << endl;
+
     int choice_ = 0;
     cout << "Ban muon sua nghia cua tu nhu the nao? Nhap so tuong ung voi lua chon:\n1. Tao mot nghia hoan toan moi cho tu\n2. Sua chi mot trong so cac nghia cua tu\nSo khac. Huy, khong sua nua: ";
     cin >> choice_;
@@ -173,8 +170,8 @@ void editAWord(SkipList& skl)
             int flag = 1;
             do
             {
-                (*searchResult[choice])->data.meaning.clear();
-                (*searchResult[choice])->data.type.clear();
+                (*searchResult)->data.meaning.clear();
+                (*searchResult)->data.type.clear();
                 cout << "Nhap tu loai cua tu. Tu loai co dang \"<tu_loai>.\": "; getline(cin, type);
                 if (!isWordType(type))
                 {
@@ -196,16 +193,16 @@ void editAWord(SkipList& skl)
                 if (flag)
                     meanings.push_back("");
             } while (flag);
-            word = (*searchResult[choice])->data.word;
-            (*searchResult[choice])->data = initWord(word, type, meanings);
-            (*searchResult[choice])->data.type = types;
+            word = (*searchResult)->data.word;
+            (*searchResult)->data = initWord(word, type, meanings);
+            (*searchResult)->data.type = types;
         }
         break;
         case 2:
         {
             int _choice = 1; index = 1;
             cout << "Chon nghia cua tu de sua:" << endl;
-            for (string i : (*searchResult[choice])->data.meaning)
+            for (string i : (*searchResult)->data.meaning)
                 if (i != "")
                 {
                     cout << index << i << endl;
@@ -215,14 +212,14 @@ void editAWord(SkipList& skl)
                     ++index;
             cout << "So khac. Huy, khong sua nua: ";
             cin >> _choice; cin.ignore();
-            if (_choice - 1 >= (*searchResult[choice])->data.meaning.size() - (*searchResult[choice])->data.type.size() + 1 || _choice - 1 < 0)
+            if (_choice - 1 >= (*searchResult)->data.meaning.size() - (*searchResult)->data.type.size() + 1 || _choice - 1 < 0)
             {
                 cout << "Chuc ban may man lan sau." << endl;
                 return;
             }
             // else
             cout << "Nhap nghia moi. Khong nhap gi va nhan Enter de xoa nghia da chon: "; getline(cin, meaning);
-            (*searchResult[choice])->data.meaning[_choice - 1] = meaning;
+            (*searchResult)->data.meaning[_choice - 1] = meaning;
         }
         break;
         default:
@@ -231,76 +228,61 @@ void editAWord(SkipList& skl)
             return;
         }
     }
-    // int hashVal1 = hashFunction1(encodeWord(w), ht.table.size());
-    // int hashVal2 = hashFunction2(hashVal1, ht.table[hashVal1].size(), 2);
-    // list<Word>::iterator it = ht.table[hashVal1][hashVal2].begin();
-    // while (it != ht.table[hashVal1][hashVal2].end() && it->word != (*searchResult[choice])->data.word)
-    //     ++it;
-    // *it = *iters[choice];
+
     cout <<  "Da sua thanh cong! Tu moi duoc sua nghia la:" << endl;
-    printWord((*searchResult[choice])->data);
+    printWord((*searchResult)->data);
     cout << endl;
 }
 
-void lookUpDictionary(SkipList skl)
+void lookUpDictionary(Node* root)
 {
     string word; Word w; 
     cout << "Nhap tu can tra: "; getline(cin, word);
-    w = initWord(word); 
-    vector<Node**> searchResult = searchForElement(skl, w);
-    if (searchResult.empty())
+    Node** searchResult = searchForElement(root, word);
+    if (!searchResult)
     {
         cout << "Khong tim thay tu. Chuc ban may man lan sau." << endl;
         return;
     }
     // else
-    cout << "Day la cac tu toi tim duoc:" << endl;
-    for (Node** i : searchResult)
-    {
-        printWord((*i)->data);
-        cout << endl;
-    }
+    cout << "Day la tu toi tim duoc:" << endl;
+    printWord((*searchResult)->data);
+    cout << endl;
     return;
 }
 
-void deleteAWord(SkipList& skl)
+void deleteAWord(Node*& root)
 {
     string word; Word w; 
     cout << "Nhap tu can tra: "; getline(cin, word);
-    w = initWord(word); 
-    vector<Node**> searchResult = searchForElement(skl, w);
-    if (searchResult.empty())
+    Node** searchResult = searchForElement(root, word);
+    if (!searchResult)
     {
         cout << "Khong tim thay tu. Chuc ban may man lan sau." << endl;
         return;
     }
     // else
-    cout << "Nhap so thu tu tuong ung voi tu ban muon xoa:" << endl;
-    int index = 0, choice = 0;
-    for (Node** i : searchResult)
-    {
-        cout << index << ". ";
-        printWord((*i)->data);
-        cout << endl;
-        ++index;
-    }
-    cout << "So khac. Huy, khong xoa nua: ";
+    int choice = 0;
+    cout << "Ban co chac chan ban muon xoa tu nay:" << endl;
+    printWord((*searchResult)->data);
+    cout << endl;
+    cout << "1. Co \nSo khac. Huy, khong xoa nua: ";
     cin >> choice;
-    if (choice >= searchResult.size() || choice < 0)
+    if (choice != 1)
     {
         cout << "Chuc ban may man lan sau." << endl;
         return;
     }
     //else
-    if (!deleteAnElement(skl, *searchResult[choice]))
+    if (!deleteAnElement(root, (*searchResult)->data.word))
         cout << "Xoa that bai. Chuc ban may man lan sau." << endl;
     else
         cout << "Da xoa thanh cong." << endl;
 }
 
-int outputToFile(SkipList skl)
+int outputToFile(Node* root)
 {
-    vector<Word> data = convertSkipListIntoArr(skl);
+    vector<Word> data = convertTrieIntoArr(root);
     string fname; int count = 0; bool isWritten = false;
     do
     {

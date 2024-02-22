@@ -11,6 +11,7 @@
 #include <random>
 
 #define ALPHABET_SIZE 30
+#define ALPHABET_FILENAME "characters appearing in words.txt"
 
 using namespace std;
 
@@ -65,3 +66,22 @@ struct Node
     unordered_map <char, Node*> children;
     bool isCompleteWordInDict;
 };
+
+//==========================================================
+bool isWordType(string str);
+Word initWord(string word = "", string type = "", vector<string> meaning = {});
+Node* createNode(Word data = initWord(), bool isValidWordInDict = false);
+bool readDatabase(string fname, vector<Word>& data);
+bool writeDatabase(string fname, vector<Word> data);
+int finalProgram();
+//-----------------------------------------------------------
+void insertAnElement(Node*& root, Word w);
+Node** searchForElement(Node* root, string word);
+bool deleteAnElement(Node*& root, string word);
+Node* putToTrie(vector<Word> data);
+//-----------------------------------------------------------
+void addAWord(Node*& root);
+void editAWord(Node*& root);
+void lookUpDictionary(Node* root);
+void deleteAWord(Node*& root);
+int outputToFile(Node* root);
