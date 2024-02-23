@@ -62,7 +62,7 @@ struct Word
 
 struct Node
 {
-    Word data;
+    vector<Word> data; // handle homophone cases
     unordered_map <char, Node*> children;
     bool isCompleteWordInDict;
 };

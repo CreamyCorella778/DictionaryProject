@@ -18,7 +18,8 @@ bool isInitialized(Word w)
 Node* createNode(Word data /* = initWord() */, bool isValidWordInDict /* = false */)
 {
     Node* node = new Node;
-    node->data = data;
+    if (isInitialized(data))
+        node->data.push_back(data);
     node->isCompleteWordInDict = isValidWordInDict;
     return node;
 }
@@ -35,8 +36,7 @@ void insertAnElement(Node*& root, Word w)
         current = current->children[tolower(w.word[i])];
     }
     current->isCompleteWordInDict = true;
-    if (!isInitialized(current->data))
-        current->data = w;
+    current->data.push_back(w);
     /*
     if (!current->isCompleteWordInDict)
     {
@@ -57,18 +57,22 @@ Node* putToTrie(vector<Word> data)
 Node** searchForElement(Node* root, string word)
 {
     if (!root)
-        return false;
+        return nullptr;
     Node* current = root;
     for (int i = 0; i < word.size(); ++i)
     {
         if (current->children.find(tolower(word[i])) == current->children.end())
-            return false;
+            return nullptr;
         current = current->children[tolower(word[i])];
     }
-    if (!noCaseSensitiveCompare(current->data.word, word) && current->isCompleteWordInDict)
-        return &current;
+    if (current->isCompleteWordInDict)
+    {
+        Node** result = new Node*;
+        *result = current;
+        return result;
+    }    
     else
-        return false;
+        return nullptr;
 }
 
 bool deleteAnElement(Node*& root, string word)
@@ -84,7 +88,7 @@ bool deleteAnElement(Node*& root, string word)
         traverseHistory.push_back(current);
         current = current->children[tolower(word[i])];
     }
-    if (!(!noCaseSensitiveCompare(current->data.word, word) && current->isCompleteWordInDict))
+    if (!(current->isCompleteWordInDict))
         return false;
     if (current->children.empty())
     {
